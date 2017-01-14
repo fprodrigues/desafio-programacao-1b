@@ -1,2 +1,44 @@
-<h1>Arquivos#show</h1>
-<p>Find me in app/views/arquivos/show.html.erb</p>
+<div class= "clara">
+<div class="col-md-12">
+<br />
+<br />
+<h1> Detalhes do Arquivo </h1>
+<br />
+<br />
+<table class = "table table-bordered table-striped">
+   <thead>.
+      <tr>
+           <th> Comprador </th>
+	    <th> Descricao</th>
+	   <th> Preço </th>
+	   <th> Endereço </th>
+	   <th> Fornecedor</th>
+	   <th> Valor parcial </th>
+
+      </tr>
+   </thead>
+
+   <tbody>
+      <% @dados.each do |dado| %>
+         
+         <tr>
+            <td><%= dado.comprador %></td>
+	    <td><%= dado.descricao %></td>
+	   <td><%= dado.preco %></td>
+	   <td><%= dado.endereco %></td>
+	   <td><%= dado.fornecedor %></td>
+	   <td>R$<%= dado.parcial %></td>
+         </tr>
+         
+      <% end %>
+   </tbody>
+ 
+</table>
+
+<br />
+<br />
+<%= link_to 'Voltar', arquivos_path, :class =>"btn btn-warning" %>
+<br />
+<br />
+
+</div>

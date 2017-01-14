@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170114171842) do
+ActiveRecord::Schema.define(version: 20170114212827) do
 
   create_table "arquivos", force: :cascade do |t|
     t.string   "attachment"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20170114171842) do
     t.integer  "arquivo_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float    "parcial"
     t.index ["arquivo_id"], name: "index_dados_on_arquivo_id"
   end
 

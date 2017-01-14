@@ -4,7 +4,7 @@ validates_presence_of :attachment
 validates_integrity_of :attachment
 validates_processing_of :attachment
 
-has_many :dados
+has_many :dados,  :dependent => :destroy
 
 
 

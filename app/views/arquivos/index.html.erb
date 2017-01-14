@@ -27,8 +27,9 @@
    <thead>.
       <tr>
          <th>Name</th>
+         <th>Valor Total </th>
          <th></th>
-         <th> </th>
+	<th></th>
       </tr>
    </thead>
    
@@ -37,7 +38,8 @@
          
          <tr>
             <td><%= File.basename(arquivo.attachment.path) %></td>
-	    <td><%= link_to "Mostrar Resume", :class =>"btn btn-success-outline" %></td>
+	    <td>R$ <%= arquivo.valortotal  %></td>
+	    <td><%= link_to "Detalhes Arquivo", arquivo, :class =>"btn btn-success-outline" %></td>
             <td><%= button_to "Delete", arquivo, method: :delete, class: "btn btn-danger", data: { confirm: 'Tem certeza que quer excluir?' } %></td>
          </tr>
          

@@ -11,8 +11,7 @@ def index
 
   def create
 	@arquivo = Arquivo.new(arquivo_params)
-	if @arquivo.save
-
+   if @arquivo.save
 	 file = File.open(File.join(Rails.root,'public', @arquivo.attachment_url), "r")
 	arquivo = File.read(file)
 	linha = 0
@@ -21,10 +20,12 @@ def index
 			if linha === 0
 				linha = 1
 			else
-	   	    		dado = Dado.create(comprador: m[0],descricao: m[1], preco: m[2], quantidade: m[3], endereco: m[4], fornecedor: m[5], arquivo_id: @arquivo.id)
+	   	    		dado = Dado.create(comprador: m[0],descricao: m[1], preco: m[2], quantidade: m[3], endereco: m[4], fornecedor: m[5], parcial: m[2].to_f*m[3].to_f, arquivo_id: @arquivo.id)
 				dado.save
 			end  	
 		end
+	@arquivo.valortotal = Dado.where(arquivo_id: @arquivo.id).sum(:parcial)
+	 @arquivo.save
 	redirect_to arquivos_path, notice:  "Arquivo processado."
 	else
 	redirect_to new_arquivo_path, notice:  "Arquivo não compativél."
@@ -32,6 +33,7 @@ def index
   end
 
   def show
+  @dados = Dado.where(arquivo_id: @arquivo.id)
   end
 
   def destroy
