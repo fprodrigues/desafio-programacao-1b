@@ -1,3 +1,54 @@
-<div class= "clearfix">
-<h3>Teste</h3>
+<div class= "clara">
+
+<% if !flash[:notice].blank? %>
+   <div class = "alert alert-warning">
+      <%= flash[:notice] %>
+   </div>
+<% end %>
+
+<br/>
+<br />
+
+<h1> Desafio de programação </h1>
+
+<br/>
+<br />
+
+<hr>
+<%= link_to "Adicionar novos dados", new_arquivo_path, class: "btn btn-primary" %>
+<br />
+<br />
+
+
+<h3> Dados anteriores </h3>
+<div class="col-md-12">
+
+<table class = "table table-bordered table-striped">
+   <thead>.
+      <tr>
+         <th>Name</th>
+         <th></th>
+         <th> </th>
+      </tr>
+   </thead>
+   
+   <tbody>
+      <% @arquivos.each do |arquivo| %>
+         
+         <tr>
+            <td><%= File.basename(arquivo.attachment.path) %></td>
+	    <td><%= link_to "Mostrar Resume", :class =>"btn btn-success-outline" %></td>
+            <td><%= button_to "Delete", arquivo, method: :delete, class: "btn btn-danger", data: { confirm: 'Tem certeza que quer excluir?' } %></td>
+         </tr>
+         
+      <% end %>
+   </tbody>
+ 
+</table>
+</div>
+<br />
+<br />
+<hr>
+<br />
+<br />
 </div>

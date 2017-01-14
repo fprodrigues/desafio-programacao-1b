@@ -1,2 +1,27 @@
-<h1>Arquivos#new</h1>
-<p>Find me in app/views/arquivos/new.html.erb</p>
+<div class="clara">
+
+<% if !flash[:notice].blank? %>
+   <div class = "alert alert-danger">
+      <%= flash[:notice] %>
+   </div>
+<% end %>
+  
+<br />
+<br />
+<h3>Adicione o arquivo a ser processado</h3>
+<br />
+<br />
+<div class = "well">
+   <%= form_for @arquivo, html: { multipart: true } do |f| %>
+      <%= f.label :attachment %>
+      <%= f.file_field :attachment %>
+	<br/>
+      <%= f.submit "Processar arquivo", class: "btn btn-primary" %>
+   <% end %>
+<br />
+<br />
+<%= link_to 'Voltar', arquivos_path, :class =>"btn btn-warning" %>
+<br />
+<br />
+</div>
+</div>

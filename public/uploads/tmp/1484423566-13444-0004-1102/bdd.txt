@@ -1,0 +1,971 @@
+pwd - descobrir o directorio
+rails new blog_app  -T  (tira os directórios e arquivos de teste)
+cd blog_app
+rails server  -b  0.0.0.0
+gemfile add rspec and capybara. (gem 'capybara'  , '2.4.4')
+bundle install
+rails generate rspec:install 
+(git add -A)
+----------------------------
+blog App
+-Articles
+	- ID
+	- Title
+	- Body
+- Users
+	-ID
+	-Email
+	-Password
+-Comments
+	- ID
+	- Body
+	- User_ID
+	- Article_ID
+
+------------------------------------------------------------------
+git checkout -b article-feature-success
+git branch (git checkout master - pra sair desse branch)
+mkdir spec/features
+
+------------------------------------------
+no features... criar arquivo creating_article_spec.rb
+
+require 'rails_helper'
+
+
+RSpec.feature "Creating Articles" do
+	scenario "A user creates a new article" do
+		visit "/"
+		
+		click_link "New Article"
+		
+		fill_in "Title", with: "Creating first article"
+		fill_in "Body", with: "lorem ipsum"
+
+		
+		click_button "Create Article"
+
+		expect(page).to have_content ("Article has been created")
+		expect(page.current_path).to eq(articles_path)
+	end
+end
+------------------------
+rspec spec/features/creating_article_spec.rb
+rspec spec/features/criando_news_spec.rb
+
+config routes.rb
+root to: 'articles#index'
+
+(teste de novo)
+
+rails g controller articles index
+
+(teste de novo)
+-------------------------------------
+app views articles index.html.erb
+
+<h1> Create a new Article </h1>
+
+<%= link_to "New Article", new_article_path %>
+
+---------------------------------------------
+gemfile
+gem "bootstrap - sass"
+gem "autoprefixer"
+
+bundle install
+
+assets-stylesheets-custom.css.scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+//para abaixar o título do navbar.
+body {
+	padding-top:70px;
+	background:#D8D8D8;
+	color: #791e9e;
+}
+------------------------
+application.js
+abaixo de //=require jquery_wjs
+//= require bootstrap-sprockets
+--------------------------------
+views layouts application.html.erb
+<body>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+	 <div class="container-fluid">
+		<div class= "navbar-header">
+			<button type ="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>			
+
+</button>
+<%= link_to "Blog App", root_path, class: "navbar-brande" %>
+</div>
+<div class = "navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+	<ul class="nav navbar-nav">
+		<li class="active"> <%= link_to "Authors", "#" %> </li>
+	</ul>
+	</div>
+	</div>
+</nav>
+
+<div class = "container-fluid">
+<% flash.each do |name, msg| %>
+	<div class='alert alert-<%= "#{name}" %>'>
+		<a href='#' class='close' data-dismiss='alert' &#215;></a>
+	<%= content_tag :div, msg, :id => "flash_#{name}" if msg.is_a?(String) %>
+	</div>
+<% end %>
+
+
+<div class="row">
+	<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-8">
+		<%= yield %>
+	</div>
+
+	<div class="col-md-4">
+	<%= yield :sidebar %>
+	</div>
+	</div>	
+	</div>
+	</div>
+---------------------------------------------------------------------------
+routes.rb
+resources :articles
+rake roots
+--------------------------
+articles_controller.rb
+
+	def new
+		@article = Article.new
+	end
+---------------------------------------
+rails g model article title:string body:text
+
+rake db:migrate
+
+rails console
+Article.all
+Article
+exit
+
+----------------------------------
+new.html.erb-arquivo png
+
+--------------------------------------------------
+articles_controller.rb
+	def create
+		@article = Article.new(article_params)
+		@article.save
+		flash[:success] = "Article has been created"
+		redirect_to articles_path
+	end
+	
+	private
+		def article_params 
+			params.require(:article).permit(:title, :body)			
+		end
+---------------------------------
+git status
+git add -A
+git commit -m "create article"
+git checkout master
+git merge article-feature-sucess
+git status
+git push
+git push
+
+
+----------------------------------------adicionando Guard--------------------
+ git checkout -b adding-guard
+
+gemfile
+group: development,:test do
+	gem 'rspec-rails', '3.2.3'
+...................... adicionar aqui
+	gem 'guard-rspec', require:false
+	gem 'spring-commands-rspec'
+
+bundle install
+---------------------------------------------------
+guard init rspec
+guard file.... mudar a linha guard:rspec, cmd: "" do ........para...... guard:rspec, cmd: "rspec" do  
+
+git add -A
+git status
+git commit -m "adding guard"
+git checkout master
+git merge adding-guard
+git push
+
+------------
+guard
+------------------------validations
+git checkout -b article-validation
+
+em outro terminarl... iniciar o guard.
+===== spec/features/creating_article_spec.rb
+
+scenario "A user fails to create a new article" do
+		visit "/"
+		click_link "New Article"
+		
+		fill_in "Title", with: ""
+		fill_in "Body", with: ""
+		click_button "Create Article"
+
+		expect(page).to have_content("Article has not been created")
+		expect(page).to have_content("Title can't be blank")
+		expect(page).to have_content("Body can't be blank")
+end
+
+------------------------------------------------------------------------
+articles_controller.rb
+
+	def create
+		@article = Article.new(article_params)
+		if @article.save
+			flash[:success] = "Article has been created"
+			redirect_to articles_path
+		else
+			flash.now[:danger] = "Article has not been created" (com o .now.. ele só fica na página que foi criado, não aparece na 2.)
+			render :new
+		end
+	end
+
+----------------------------
+article.rb (model)
+
+class Articles < ActiveRecord::Base
+	validates :title, presence:true
+	validates :body, presence:true
+end
+---------------------- views articles
+new.html.erb.
+
+<% if @article.errors.any? %>
+<div class="panel panel-danger col-md-offset-1">
+	<div class="panel-heading">
+		<h2 class="panel-title">
+		<%= pluralize(@article.errors.count,"erro") %>
+		prohibited this article from being saved:
+		</h2>
+	<div class ="panel-body">
+		<ul>
+			<% @article.errors.full_messages.each do |msg| %>
+			<li>
+				<%= msg %>
+			</li>
+		<% end %>
+		</ul>
+	</div>
+   </div>
+</div>
+<% end %>
+
+-----------------------------------------------------
+git add -A
+git commit -m "Add validations to Article"
+git checkout master
+git merge article-validation
+git push
+
+-------------------------------------------------------------
+flash vs flash.now
+
+flash => aparece em mais uma página além da que o gerou
+flash.now => só aparece na página que o gerou.
+
+------------------------------------------------------------------------
+git checkout -b listing-articles
+
+spec/features/novo arquivo.  listing_articles_spec.rb
+
+require "rails_helper"
+
+RSpec.feature "Listing Articles" do
+
+	before do
+		@article1 = Article.create(title: "The first article", body: "Body of first article")
+		@article2 = Article.create(title: "The second article", body: "Body of second article")
+	end
+
+	scenario "list all articles" do
+		visit "/"
+		expect(page).to have_content (@article1.title)
+		expect(page).to have_content (@article1.body)
+		expect(page).to have_content (@article2.title)
+		expect(page).to have_content (@article1.body)
+		expect(page).to have_link (@article1.title)
+		expect(page).to have_link (@article2.title)
+	end
+end
+------------------------ liga o guard
+views articles index.html.erb
+
+mudando o título
+
+<h1>Listing all Articles</h1>
+
+<%= link_to "New Article", new_article_path, class: "btn btn-default btn-lg", id: "new-article-btn" %>
+
+<% @articles.each do |article| %>
+	<div class = "well well-lg">
+	<div class = "artile-title">
+	  <%= link_to article.title, article_path(article) %>
+	</div>
+	<div class = "article-body">
+	<%= truncate(article.body, length: 500) %>
+	</div>
+</div>
+<% end %>
+---------------------------
+articles_controller.rb
+( index estava vazio)
+
+def index
+	@articles = Article.all
+end
+-----------------------------------
+article.rb (isso faz os artigos mais novos ficarem no topo)
+
+default_scope {order(created_at: :desc)}
+
+---------------------------------------------------------
+no caso, ele formulou css
+.article-title, .article-body{
+	padding-left:0.7em;
+}
+
+.article-title {
+	font-weight:bold;
+	font-size: 2.5em;
+	margin-bottom: 0.8em;
+}
+
+.article-body {
+	font-size: 1.5em;
+}
+
+#new-article-btn {
+	margin-bottom:10px;
+}
+
+-------------------------
+git add-A
+git commit -m "implement listing articles"
+git checkout master
+git merge listing-articles
+git push
+
+-------------------------------------
+show article
+
+git checkout -b showing-article
+
+spec features new file  showing_article_spec.erb
+
+require "rails_helper"
+
+RSpec.feature "Showing an Article" do
+	before do
+	 @article = Article.create(title: "The first article", body: "Body of first article")
+	end
+
+	scenario "Display individual article" do
+		visit "/"
+
+		click_link @article.title
+	expect(page).to have_content(@article.title)
+	expect(page).to have_content(@article.body)
+	expect(current_path).to eq(article_path(@article))
+	 end
+end
+-----------------------------
+articles.controller.rb
+
+def show
+	@article = Article.find(params[:id]) (encontrar o article por id)
+end
+-----------------------
+views articles new file... show.html.erb
+
+<article class="detail-article">
+
+	<h1 class="article-detail-title"><% @article.title %></h1>
+<div class=" glyphicon glyphicon-calendar" id="article-date"> 
+	<%= @article.created_at.striftime("%b %d, %Y") %>
+</div>
+
+<div class="article-body">
+	<%= @article.body %>
+</div>
+
+</article>
+---------------------------------------
+css
+
+#article-date{
+	margin-bottom: 40px;
+}
+
+.article-detail-title{
+	fonte-size:4em;
+	margin-bottom:40px;
+}
+--------------------------------------------------
+git status
+git add -A
+git commit -m "Implement show article feature"
+git checkout master
+git merge showing-article
+git push
+--------------------------------
+
+o Guard não verificas mudanças no controlador ou no model. Ele verifica só as similares no RSpec.
+para ele verificar temos que fazer uma mudança na configuração do Guardfile.
+
+#rails files
+
+watch(%r{^app/controllers/(.+)_(controller)\.rb$}){"spec/features"}
+watch(%r{^app/models/(.+)\.rb$}){"spec/features"}
+watch (rails)
+
+#rails config changes
+
+watch (rails.routes) {"spec"} #{"#{rspec.spec_dir}/routing"}
+
+#capybara features specs
+watch ("spec/features"} # o resto vir comentário...
+
+git status.......
+commit -m "modified guardfile"
+...............................................
+git checkout -b editing-article
+
+features new file editing_article_spec.rb
+
+require "rails_helper"
+
+RSpec.features "Editing an Article" do
+	before do
+	@article = Article.create(title: "The first article", body: "Body of first article")
+	end
+
+scenario "a user updates an article" do
+	visit "/"
+
+	click_link @article.title
+	click_link "Edit Article"
+
+	fill_in "Title", with: "Updated article"
+	fill_in "Body", with: "Updated body of article"
+	click_buttom "Update Article"
+
+	expect(page).to have_content("Article has been updated")
+	expect(page.current_path).to eq(article_path(@article))
+
+end
+
+scenario "A user fails to update an article" do
+	visit "/"
+
+	click_link @article.title
+	click_link "Edit Article"
+
+	fill_in "Title", with: ""
+	fill_in "Body", with: "Updated body of article"
+	click_buttom "Update Article"
+
+	expect(page).to have_content("Article has not been updated")
+	expect(page.current_path).to eq(article_path(@article))
+end
+end
+===========================================
+show.html.erb (view)
+<%= link_to "Edit Article", edit_article_path(@article), class:"btn btn-primary btn-lg btn-space" %>
+-------------------------------------------------------
+articles_controller.rb
+def edit
+	@article = Article.find(params[:id])
+end
+------------------------
+articles views edit.html.erb
+
+<h3 class='text-center'> Editing an Article</h3>
+<div class='row'>
+<div class='col-md-12'>
+<%= form_for(@article, :html => {class: "form-horizontal", role: "form"}) do |f| %>
+<div class='form-group'>
+<div class='control-label col-md-1'>
+<%= f.label :title %>
+</div>
+<div class='col-md-11'>
+<%= f.text_field :title, class: 'form-control', placeholder: 'Title of article', autofocus: true %>
+</div>
+</div>
+<div class='form-group'>
+<div class='control-label col-md-1'>
+<%= f.label :body %>
+</div>
+<div class='col-md-11'>
+<%= f.text_area :body, rows: 10, class: 'form-control', placeholder: 'Body of article' %>
+</div>
+</div>
+<div class='form-group'>
+<div class='col-md-offset-1 col-md-11'>
+<%= f.submit class: 'btn btn-primary btn-lg pull-right' %>
+</div>
+</div>
+<% end %>
+</div>
+</div>
+
+-----------------------------------------------------------------------
+
+def update
+	@article=Article.find(params[:id])
+	if @article.update(article_params)
+		flash[:sucess] = "Article has been updated"
+		redirect_to @article
+	else
+		flash.now[:danger] = "Article has not been updated"
+		render :edit
+	end
+end
+===============================================
+git...
+=====================================
+git checkout -b delete-article
+
+features new deleting_article_spec.rb
+
+require "rails_helper"
+
+RSpec.feature "Deleting an Article" do
+
+	before do
+		 @article = Article.create(title: "The first article", body: "Body of first article")
+	end
+
+	scenario "A use deletes an Article" do
+		visit "/"
+
+		click_link @article.title
+		click_link "Delete Article"
+		expect(page).to have_content("Article has been deleted")
+		expect(current_path).to eq(article_path)
+	 end
+end
+-------------------------------------------
+show.html.erb
+<%= link_to "Delete Article", article_path(@article), method: :delete, data {confirm:"Are you sure you want to delete the article?"}, class:" btn btn-danger btn-lg btn-space" %>
+------------------------------------------------------
+controller articles
+
+def destroy
+	@article = Article.find(params[:id])
+	if @article.destroy
+		flash[:success] = "Article has been deleted"
+		redirect_to articles_path
+	end
+end
+
+-------------------------------------------------
+css
+.btn-space{
+	margin-top:20px;
+}
+----------
+git status....
+-------------------------------------
+                                      refactor
+. controller
+
+private
+def set_article
+  @article = Article.find(params[:id])
+end
+
+com isso posso destruir essa linha que aparece nos actions...
+no topo eu escrevo
+
+before_filter :set_article, only: [:show, :edit, :update, :destroy]
+
+====================================================
+agora o new.html e o edit que são iguais...
+criamos um partial um sub.... o underscore indentifica ao rails o que é partial...
+_form.html.erb
+
+colamos a parte igual do edit e do new...
+onde estava a parte igual, colamos:
+<%= render 'form' %>
+==========================================
+
+
+
+==============================================================================================================
+user management
+
+-users sign-up
+- Log in/ Log out
+- Restrict access to certain features
+
+--------------------------------------------
+git checkout -b setup-devive
+gemfile 
+gem 'devise','->3.5.1'
+bundle install
+
+rails g devise:install
+git status.... etc
+----------------------------------
+
+rails g devise user
+rake db:migrate
+
+routes terá devise_for: users
+------------------
+git add -A
+git commit -m "create user model"
+-----
+git checkout -b user-signup
+
+spec features new file
+signing_users_up_spec.rb
+
+require "rails_helper"
+
+RSpec.feature "Users signup" do
+
+	scenario "with valid credentials" do
+		visit "/"
+
+		click_link "Sign up"
+		fill_in "Email", with:"user@example.com"
+		fill_in "Password", with:"password"
+		fill_in "Password confirmation", with:"password"
+		click_button "Sign up"
+
+		expect(page).to have_content("You have signed up successfully.")
+	end
+end
+-----------------------------------------
+app views layouts application.html.erb
+abaixo da linha
+<li class= 'active'><%= link_to "Authors", "#" %></li>
+<li> <%= link_to "Sign up", new_user_registration_path %> </li>
+</ul>
+(Para saber o endereço new_user_registration ele pegou no rake routes | grep registration.)
+
+--------------------------
+git add -A..... etc..
+git push
+-----------------------------------
+rails g devise:views
+
+views - devise - registrations - new.html.erb.... modificações em png
+atenção ao :html => {class:"form-horizontal",role:"form"}, que por sinal, ele errou a escrita.
+--------------------------------------------
+git add -A.....
+-----------------------------------------------------------------
+git checkout -b user-signin
+spec featuares signig_users_in_spec.rb
+
+require "rails_helper"
+
+RSpec.feature "Users sign-in" do
+
+	before do
+		@john = User.create!(email:"jonh@example.com", password:"password")
+	end
+	
+	scenario "with valid credentials" do
+		visit "/"
+
+		click_link "Sign in"
+		fill_in "Email", with: @john.email
+		fill_in "Password", with: @john.password
+		click_button "Log in"
+
+	expect(page).to have_content ("Signed in successfully.")
+	expect(page).to have_content ("Signed in as #{@john.email}")
+
+	end
+end
+--------------------------------------
+app view layout application.html.erb
+
+abaixo da linha <li><%= link_to "Sign up".....
+<li> <%= link_to "Sign in", new_user_session_path %> </li>
+
+e acima da mesma linha
+ <% if user_signed_in? %>
+	<div class = "navbar-right">
+	<p class = "navbar-text">
+		Signed in as <%= "#{current_user.email}"%>
+	</p>
+	</div>
+<% end %>
+------------------------------------------------------------------------
+git status
+git add -a
+git commit -m .... etc
+-----------------------------------------------------------------------------
+authentic
+articles_controller
+before_action :authenticate_user!, except: [:index, :show]
+-------------------------------------------------------------------------------
+git checkout -b devise-messages
+app-> helpers-> application_helper.rb
+
+module ApplicationHelper
+	 def devise_error_messages:
+		retun '' if resource.errors.empty?
+		
+		messages = resource.errors.full_messages.map {
+		|msg| content_tag(:li,msg)}.join
+		html=<<-HTML
+	<div class= "alert alert-error alert-danger">
+	<a href='#' class='close' data-dismiss='alert' &#215;> </a>
+	<%= content_tag :div, msg if msg.is_a?(String) %>
+	</div>
+	HTML
+		html.html_safe
+	end
+end
+===========================================================
+css
+
+.alert-erro {
+	backgroud-color:#f2dede;
+	border-color:#eed3d7;
+	color:#b94a48;
+	text-align:left;
+}
+
+.alert-alert {
+	backgroud-color:#f2dede;
+	border-color:#ebccd1;
+	color:#a94442;
+	text-align:left;
+}
+
+.alert-sucess {
+	backgroud-color:#f2dede;
+	border-color:#eed3d7;
+	color:#b94a48;
+	text-align:left;
+}
+
+.alert-alert {
+	backgroud-color:#dff0d8;
+	border-color:#d6e9c6;
+	color:#468847;
+	text-align:left;
+}
+
+.alert-notice {
+	backgroud-color:#dff0d8;
+	border-color:#d6e9c6;
+	color:#468847;
+	text-align:left;
+}
+
+--------------------------------------------------------------
+new folder views shared _header.html.erb
+_main.html.erb
+_footer.html.erb
+
+...... selecionar o nav... que seria o navbar do application.html.erb, e cole no _header
+entre <header role ="banner"> e </header>
+
+no lugar colocar <%= render 'shared/header' %>
+
+os divs com yield, vão pro _main....
+e troco por <%= render 'shared/main' %>
+
+e o último o footer... coloco a div class "container-fluid" no arquivo _footer.
+e adiciono o <%= render 'shared/footer' %>
+----------------------------------------------------
+_footer.html.erb
+<div class = "container-fluid">
+	<div class = "row">
+		<div class = "col-md-10 text-center">
+		<footer role = "contentinfo">
+			<p><small>Copyright &copy; ahahahah &amp; ahahhaha</small></p>
+		</footer>
+	</div>
+	</div>
+</div>
+===================================================
+git add -A.........................
+===================================================
+git checkout -b user-signout
+--------------------------
+signing_users_out_spec.rb
+
+require "rails_helper"
+
+RSpec.feature "Signing out signed-in users" do
+
+	before do
+		@john = User.create!(email:"john@example.com",password:"password")
+		visit "/"
+		click_link "Sign in"
+		fill_in "Email", with: @john.email
+		fill_in "Password", with: @john.password
+		click_button "Log in"
+	end
+
+	scenario "logout" do
+		visit "/"
+		click_link "Sign out"
+
+	expect(page).to have_content ("Signed out successfully.")
+	end
+end
+========================================================
+app - views - shared - _header
+
+dentro do <% if user_signed_in? %>
+	<li><%= link_to "Sign out", destroy_user_session_path, method: :delete %> </li>
+
+Sempre que for deletar ou destruir algo é necessário mostrar o método.
+------------------------------------------------------------------
+ao rodar aparecem mais erros mas isso se deve ao fato dos outros specs precisarem de autenticação.
+
+git add -a e etc...
+-----------------------------------------------------
+no programa dele os botões de editar e excluir ainda aparecem ao sign out.
+-----------------------------------------------------
+git checkout -b link-article-to-users.
+
+-------------------------------------------
+em creating_article_spec.rb
+before do
+		@john = User.create!(email:"john@example.com",password:"password")
+		login_as(@john)
+end
+
+e mais uma expect
+
+expect(page).to have_content ("Created by:#{@john.email}")
+
+---------------------------------
+spec -> rails_helper.rb
+
+require 'rspec/rails'
+include Warden::Test::Helpers
+Warden.test_mode!
+=====================================
+index.html.erb
+<div class ="author">
+<% if article.user %>
+<small> Created by: <%= article.user.email %> </small>
+<% end %>
+</div>
+----------------------------------------
+models user.rb
+
+has_many :articles
+------------------------------------
+article.rb
+belongs_to :user
+---------------------------------------
+
+rails generate migration add_user_id_to_articles user:references
+rake db:migrate
+---------------------------------------------------
+em articles
+def create
+@article = current_user.articles.build(article_params)
+-------------------------------------------------------------
+nos spec editing_article e deleting_article no before do
+adicionar o
+		john = User.create!(email:"john@example.com",password:"password")
+		login_as(john)
+		@article = Article.create(title: "The first article", body: "Body of first article", user:john)
+		
+------------------------------------------------------------------
+css
+.author{
+	padding-top:15px;
+	padding-left:15px;
+	font-style: italic;
+}
+
+-------------------------------------------------------------------------
+git branch -d setup-devise    (-D => se não tiver sido merge, mas tu precisa, por ter feito merda)
+--------------------------------------------------------------
+restrict-acess
+
+listing_articles_spec
+
+	expect(page).not_to have_link ("New Article")
+-------------------------------------------------------------
+index_html
+
+<% if user_signed_in? %>
+<%= link_to "New Article", new_article_path, class: "btn btn-default btn-lg", id: "new-article-btn" %>
+<% end %>
+--------------------------------------------------------------------
+showing_articles_spec
+
+		@john = User.create!(email:"john@example.com",password:"password")
+		@fred= User.create!(email:"fred@example.com",password:"password")
+		@article = Article.create(title: "The first article", body: "Body of first article", user:@john)
+
+
+scenario "A non-signed in user does not see Edit or Delete links" do
+	visit "/"
+
+	click_link @article.title
+
+	expect(page).to have_content(@article.title)
+	expect(page).to have_content(@article.body)
+	expect(current_path).to eq(article_path(@article))
+
+	expect(page).not_to have_link("Edit Article")
+	expect(page).not_to have_link("Delete Article")
+end
+
+scenario "A non-owner signed in cannot see both links" do
+	login_as(@fred)
+	
+	visit "/"
+	click_link @article.title
+	
+	expect(page).not_to have_link("Edit Article")
+	expect(page).not_to have_link("Delete Article")	
+end
+==================================================================
+show.html.erb
+
+guardar os links no bloco
+<% if user_signed_in? && current_user == @article.user%>
+<% end %>
+----------------------------------------------------------------
+adicionando outro scenario no showing_articles
+
+scenario "A signed in owner sees both links" do
+	login_as(@john)
+	
+	visit "/"
+	
+	click_link @article.title
+	
+	expect(page).to have_link("Edit Article")
+	expect(page).to have_link("Delete Article")	
+	
+end
+------------------------------------------------------------------
+falha no updating... a pessoa pode fazer update sem ser o dono
+----------------------------------------------------------------
+git status
+git commit -m "Restrict new edit....."
+............etc....
+----------------------------------------------------------------------

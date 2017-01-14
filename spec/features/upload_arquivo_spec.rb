@@ -7,7 +7,7 @@ RSpec.feature "uploading file" do
 		page.attach_file("arquivo_attachment", Rails.root + 'spec/fixtures/files/dados.txt') 
 		click_button "Processar arquivo"
 
-		expect(page).to have_content ("Arquivo processado")
+		expect(page).to have_content ("95")
 		expect(page.current_path).to eq(arquivos_path)
 	end
 end
