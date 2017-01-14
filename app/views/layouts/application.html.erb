@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>DesafioProgramacao1b</title>
-    <%= csrf_meta_tags %>
+   
+   <head>
+      <title>Desafio Programação 1b</title>
+      <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
+      <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+      <%= csrf_meta_tags %>
+   </head>
+   
+   <body>
+      <div class = "container-fluid" style = "padding-top:20px;">
+         <%= yield %>
+      </div>
+   </body>
 
-    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-  </head>
-
-  <body>
-    <%= yield %>
-  </body>
 </html>
