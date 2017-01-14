@@ -1,24 +1,24 @@
-# README
+# Desafio de programação
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+O app tem funções básicas, baseadas no arquivo que foi cedido (dados.txt).
 
-Things you may want to cover:
+Portanto, ao entrar na tela inicial você vê o link para novos dados e abaixo uma tabela com os dados anteriores adicionados.
 
-* Ruby version
+Clique em *"Adicionar novos dados"* e adicione o seu arquivo.
 
-* System dependencies
+O arquivo deve ser **.txt**, com tabulação em **tabs** e contendo as seguintes colunas (em ordem):
+- Comprador
+- Descrição
+- Preço Unitário
+- Quantidade
+- Endereço
+- Fornecedor
 
-* Configuration
+Clicando em *"Processar arquivo"*, você é redirecionado à página inicial.
+Onde aparecerá o arquivo adicionado e o seu valor total.
 
-* Database creation
+As outras funções:
+- *"Detalhes do Arquivo"*: para ver uma tabela com os dados tirados do arquivo e os valores parciais das compras.
+- *"Delete"*-exclui os arquivos como, também, os dados vinculados.
 
-* Database initialization
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...

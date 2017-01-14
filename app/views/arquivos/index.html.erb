@@ -39,7 +39,7 @@
          <tr>
             <td><%= File.basename(arquivo.attachment.path) %></td>
 	    <td>R$ <%= arquivo.valortotal  %></td>
-	    <td><%= link_to "Detalhes Arquivo", arquivo, :class =>"btn btn-success-outline" %></td>
+	    <td><%= link_to "Detalhes do Arquivo", arquivo, :class =>"btn btn-success-outline" %></td>
             <td><%= button_to "Delete", arquivo, method: :delete, class: "btn btn-danger", data: { confirm: 'Tem certeza que quer excluir?' } %></td>
          </tr>
          
